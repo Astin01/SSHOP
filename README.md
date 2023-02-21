@@ -18,6 +18,8 @@
 
 - pay by card or bank
 
+- chat
+
 ## Image
 
 - Login
@@ -31,6 +33,10 @@
 - Product
 
 <img src="img/product.png" width="800px" height="500px"></img>
+
+- Chat
+
+<img src="img/chat.png" width="800px" height="500px"></img>
 
 - Cart
 
@@ -57,6 +63,8 @@
 - Mongodb
 
 - Toss payment API
+
+- web socket
 
 ## Licese
 

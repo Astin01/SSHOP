@@ -1,11 +1,13 @@
 const bcrypt = require("bcrypt");
 const express = require("express");
-const path = require("path");
 const app = express();
 const passport = require("passport");
 const session = require("express-session");
 const LocalStrategy = require("passport-local").Strategy;
 const { ObjectId } = require("mongodb");
+const http = require("http").createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(http);
 
 app.use(express.static("public"));
 require("dotenv").config();
@@ -21,16 +23,16 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use(express.static(path.join(__dirname, "/build")));
+// app.use(express.static(path.join(__dirname, "/build")));
 
-app.get("/", function (req, res) {
-  res.sendFile(path.join(__dirname, "/build/index.html"));
-});
+// app.get("/", function (req, res) {
+//   res.sendFile(path.join(__dirname, "/build/index.html"));
+// });
 var db;
 MongoClient.connect(process.env.DB_URL, function (err, client) {
   if (err) return console.log(err);
   db = client.db("shop");
-  app.listen(process.env.PORT, function () {
+  http.listen(process.env.PORT, function () {
     console.log("listening on 8080");
   });
 });
@@ -96,25 +98,7 @@ app.post("/chat", function (req, res) {
     );
   }
 });
-// app.post("/message", function (req, res) {
-//   var saveChat = {
-//     parent: req.body.parent,
-//     userid: req.user._id,
-//     content: req.body.content,
-//     date: new Date(),
-//   };
-//   db.collection("message")
-//     .insertOne(saveChat)
-//     .then((result) => {
-//       res.send(result);
-//     });
-// });
-app.get("/message/:parentid", function (req, res) {
-  res.writeHead(200, {
-    Connection: "keep-alive",
-    "Content-Type": "text/event-stream",
-    "Cache-Control": "no-cache",
-  });
+app.post("/message", function (req, res) {
   var saveChat = {
     parent: req.body.parent,
     userid: req.user._id,
@@ -126,13 +110,34 @@ app.get("/message/:parentid", function (req, res) {
     .then((result) => {
       res.send(result);
     });
-  db.collection("message")
-    .find({ parent: req.params.parentid })
-    .toArray()
-    .then((result) => {
-      res.write("event: test\n");
-      res.write(`data: ${JSON.stringify(result)}\n\n`);
-    });
+});
+// app.get("/message/:parentid", function (req, res) {
+//   res.writeHead(200, {
+//     Connection: "keep-alive",
+//     "Content-Type": "text/event-stream",
+//     "Cache-Control": "no-cache",
+//   });
+//   db.collection("message")
+//     .find({ parent: req.params.parentid })
+//     .toArray()
+//     .then((result) => {
+//       console.log(result);
+//       res.write("event: test\n");
+//       res.write(`data: ${JSON.stringify(result)}\n\n`);
+//     });
+// });
+
+io.on("connection", function (socket) {
+  console.log("연결");
+  socket.on("joinroom", function (data) {
+    console.log("입장");
+    socket.join("room1");
+  });
+
+  socket.on("room1-send", function (data) {
+    console.log(data);
+    io.to("room1").emit("broadcast", data);
+  });
 });
 
 app.get("/cklogin", ckLogIn, function (req, res) {
@@ -186,6 +191,6 @@ passport.deserializeUser(async function (inputid, done) {
   });
 });
 
-app.get("*", function (req, res) {
-  res.sendFile(path.join(__dirname, "/build/index.html"));
-});
+// app.get("*", function (req, res) {
+//   res.sendFile(path.join(__dirname, "/build/index.html"));
+// });
