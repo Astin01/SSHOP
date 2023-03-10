@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const express = require("express");
 const app = express();
+const path = require("path");
 const passport = require("passport");
 const session = require("express-session");
 const LocalStrategy = require("passport-local").Strategy;
@@ -23,11 +24,11 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// app.use(express.static(path.join(__dirname, "/build")));
+app.use(express.static(path.join(__dirname, "/build")));
 
-// app.get("/", function (req, res) {
-//   res.sendFile(path.join(__dirname, "/build/index.html"));
-// });
+app.get("/", function (req, res) {
+  res.sendFile(path.join(__dirname, "/build/index.html"));
+});
 var db;
 MongoClient.connect(process.env.DB_URL, function (err, client) {
   if (err) return console.log(err);
@@ -68,9 +69,9 @@ app.post("/logout", function (req, res, next) {
 });
 app.post(
   "/login",
-  passport.authenticate("local", { failureRedirect: "/fail" }),
+  passport.authenticate("local", { failureRedirect: "/login" }),
   function (req, res) {
-    res.send("1");
+    res.render("/");
     console.log("성공");
   }
 );
@@ -191,6 +192,6 @@ passport.deserializeUser(async function (inputid, done) {
   });
 });
 
-// app.get("*", function (req, res) {
-//   res.sendFile(path.join(__dirname, "/build/index.html"));
-// });
+app.get("*", function (req, res) {
+  res.sendFile(path.join(__dirname, "/build/index.html"));
+});
