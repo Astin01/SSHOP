@@ -2,6 +2,8 @@
 
 ## Overall
 
+[SSHOP](https://port-0-sshop-p8xrq2mlf1xah3y.sel3.cloudtype.app/)
+
 - Site sells shoes
 
 <img src="img/home.png" width="800px" height="500px"></img>
@@ -65,6 +67,10 @@
 - Toss payment API
 
 - web socket
+
+- cloudtype
+
+- pwa
 
 ## Licese
 
